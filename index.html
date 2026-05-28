@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tulung Mas Januar | Jastip Lokalan Brebes & Tegal</title>
+    <meta name="description" content="Layanan jasa titip lokalan profesional area Tegal & Brebes. Pilih rute desa, hitung tarif otomatis, order via WhatsApp.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            red: '#E63946',
+                            redDark: '#C1121F',
+                            black: '#111111',
+                            gray: '#1F2022',
+                            yellow: '#FFCA28',
+                            light: '#F8F9FA'
+                        }
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .view-section { display: none; animation: slideUp 0.4s ease-out; }
+        .view-section.active { display: block; }
+        
+        .route-line {
+            position: absolute;
+            left: 23px;
+            top: 40px;
+            bottom: 40px;
+            width: 2px;
+            background: border-box border-gray-200;
+            border-left: 2px dashed #cbd5e1;
+            z-index: 0;
+        }
+        
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+            background-repeat: no-repeat;
+            background-position-x: 96%;
+            background-position-y: 50%;
+        }
+        
+        optgroup { font-weight: 700; color: #E63946; background-color: #F8F9FA; }
+        option { font-weight: 500; color: #111111; background-color: #FFFFFF; }
+    </style>
+</head>
+<body class="bg-brand-light text-brand-black font-sans antialiased selection:bg-brand-red selection:text-white pb-20 md:pb-0">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-nav border-b border-gray-100 shadow-sm transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="switchView('home')">
+                    <div class="w-10 h-10 bg-brand-black rounded-lg flex items-center justify-center mr-3 shadow-md">
+                        <i class="fa-solid fa-motorcycle text-brand-yellow text-xl"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-tight">Tulung Mas <span class="text-brand-red">Januar</span></span>
+                </div>
+                
+                <div class="hidden md:flex space-x-8 items-center">
+                    <button onclick="switchView('home')" class="text-gray-600 hover:text-brand-red font-medium transition">Beranda</button>
+                    <button onclick="switchView('track')" class="text-gray-600 hover:text-brand-red font-medium transition">Lacak Pesanan</button>
+                    <button onclick="switchView('admin')" class="text-gray-400 hover:text-brand-black text-sm transition"><i class="fa-solid fa-lock mr-1"></i> Admin</button>
+                    <button onclick="switchView('order')" class="bg-brand-red hover:bg-brand-redDark text-white px-6 py-2.5 rounded-full font-semibold shadow-lg shadow-brand-red/30 transition transform hover:-translate-y-0.5">
+                        <i class="fa-solid fa-cart-shopping mr-2"></i> Titip Sekarang
+                    </button>
+                </div>
+
+                <div class="md:hidden flex items-center">
+                    <button id="mobileMenuBtn" class="text-gray-600 hover:text-brand-red focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-100 absolute w-full shadow-lg">
+            <div class="px-4 pt-2 pb-6 space-y-2">
+                <button onclick="switchView('home'); toggleMobileMenu()" class="block w-full text-left px-3 py-3 text-base font-medium text-gray-700 hover:text-brand-red hover:bg-red-50 rounded-lg">Beranda</button>
+                <button onclick="switchView('track'); toggleMobileMenu()" class="block w-full text-left px-3 py-3 text-base font-medium text-gray-700 hover:text-brand-red hover:bg-red-50 rounded-lg">Lacak Pesanan</button>
+                <button onclick="switchView('admin'); toggleMobileMenu()" class="block w-full text-left px-3 py-3 text-base font-medium text-gray-500 hover:bg-gray-50 rounded-lg">Admin Login</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-16 min-h-screen">
+
+        <!-- ==================== BERANDA VIEW ==================== -->
+        <div id="view-home" class="view-section active">
+            <!-- Hero Section -->
+            <section class="relative bg-brand-black overflow-hidden">
+                <div class="absolute inset-0 z-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1578916171728-46686eac8d58?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-brand-black via-brand-black/90 to-transparent z-0"></div>
+                
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20 md:py-32 flex flex-col md:flex-row items-center">
+                    <div class="w-full md:w-3/5 text-center md:text-left">
+                        <div class="inline-block bg-white/10 backdrop-blur-md border border-white/20 text-brand-yellow px-4 py-1.5 rounded-full text-sm font-semibold mb-6">
+                            <i class="fa-solid fa-map-location-dot mr-2"></i> Melayani Seluruh Kab. Tegal & Brebes
+                        </div>
+                        <h1 class="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-6">
+                            Tidak sempat belanja? <br>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-red to-brand-yellow">Tinggal titip.</span>
+                        </h1>
+                        <p class="text-gray-300 text-lg md:text-xl mb-10 max-w-2xl mx-auto md:mx-0">
+                            Pilih desa penjemputan dan desa tujuan, sistem kami otomatis menghitung tarif jarak perkilometer. Belanja jadi lebih mudah & praktis.
+                        </p>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                            <button onclick="switchView('order')" class="bg-brand-red hover:bg-brand-redDark text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-brand-red/40 transition transform hover:-translate-y-1 flex items-center justify-center">
+                                <i class="fa-solid fa-motorcycle mr-3 text-xl"></i> Cek Tarif & Pesan
+                            </button>
+                            <a href="#how-it-works" class="bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/20 px-8 py-4 rounded-xl font-bold text-lg transition flex items-center justify-center">
+                                Cara Kerja
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Info Bar -->
+            <div class="bg-brand-red py-4 relative z-20 shadow-lg">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <div class="text-white flex flex-col items-center">
+                            <i class="fa-solid fa-clock text-xl text-brand-yellow mb-1"></i>
+                            <span class="text-xs font-semibold">Buka 08:00 - 22:00</span>
+                        </div>
+                        <div class="text-white flex flex-col items-center border-l border-white/20">
+                            <i class="fa-solid fa-map-location-dot text-xl text-brand-yellow mb-1"></i>
+                            <span class="text-xs font-semibold">Hitung Jarak Antar Desa</span>
+                        </div>
+                        <div class="text-white flex flex-col items-center border-l border-white/20">
+                            <i class="fa-solid fa-money-bill-wave text-xl text-brand-yellow mb-1"></i>
+                            <span class="text-xs font-semibold">Tarif Transparan per-KM</span>
+                        </div>
+                        <div class="text-white flex flex-col items-center border-l border-white/20">
+                            <i class="fa-solid fa-shield-halved text-xl text-brand-yellow mb-1"></i>
+                            <span class="text-xs font-semibold">Order via WhatsApp</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cara Kerja -->
+            <section id="how-it-works" class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <h2 class="text-3xl md:text-4xl font-bold text-brand-black mb-4">Cara Titip Mudah Banget</h2>
+                        <p class="text-gray-500 max-w-2xl mx-auto">Tidak perlu ribet, tarif dihitung transparan dari desa ke desa.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                        <div class="text-center group">
+                            <div class="w-20 h-20 mx-auto bg-gray-50 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:bg-brand-red group-hover:text-white transition-all duration-300">
+                                <i class="fa-solid fa-map-location text-3xl text-gray-400 group-hover:text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3 text-brand-black">1. Pilih Rute Desa</h3>
+                            <p class="text-gray-500 text-sm">Pilih desa tempat toko (pembelian) dan desa rumah Anda (pengantaran). Tarif muncul otomatis.</p>
+                        </div>
+                        
+                        <div class="text-center group">
+                            <div class="w-20 h-20 mx-auto bg-gray-50 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:bg-brand-red group-hover:text-white transition-all duration-300">
+                                <i class="fa-brands fa-whatsapp text-3xl text-gray-400 group-hover:text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3 text-brand-black">2. Chat & Konfirmasi</h3>
+                            <p class="text-gray-500 text-sm">Klik pesan, Anda akan otomatis dialihkan ke WhatsApp Admin dengan format order yang rapi.</p>
+                        </div>
+
+                        <div class="text-center group">
+                            <div class="w-20 h-20 mx-auto bg-gray-50 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:bg-brand-red group-hover:text-white transition-all duration-300">
+                                <i class="fa-solid fa-house-chimney text-3xl text-gray-400 group-hover:text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3 text-brand-black">3. Duduk Manis</h3>
+                            <p class="text-gray-500 text-sm">Admin / Kurir kami akan membelikan pesanan Anda dan mengantarkannya sampai ke depan pintu.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Testimonials -->
+            <section class="py-20 bg-brand-light border-y border-gray-100">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl font-bold text-brand-black mb-4">Kata Mereka yang Sudah Titip</h2>
+                    </div>
+                    
+                    <div class="flex overflow-x-auto gap-6 pb-8 no-scrollbar snap-x">
+                        <div class="min-w-[300px] md:min-w-[350px] bg-white p-6 rounded-2xl border border-gray-100 snap-center shadow-sm">
+                            <div class="flex items-center gap-1 text-brand-yellow mb-4 text-sm">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-gray-600 text-sm italic mb-6">"Praktis banget! Tinggal pilih rute dari Brebes Kota ke Jatibarang, ongkirnya langsung kelihatan dan masuk akal. Abangnya juga ramah."</p>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-brand-red text-white rounded-full flex items-center justify-center font-bold">A</div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-brand-black">Anisa P.</h4>
+                                    <p class="text-xs text-gray-500">Jatibarang, Brebes</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="min-w-[300px] md:min-w-[350px] bg-white p-6 rounded-2xl border border-gray-100 snap-center shadow-sm">
+                            <div class="flex items-center gap-1 text-brand-yellow mb-4 text-sm">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-gray-600 text-sm italic mb-6">"Sering titip beliin obat di apotek Slawi malem-malem. Fast respon di WA, ga pake ribet daftar akun. Terbaik Tulung Mas Januar!"</p>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">B</div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-brand-black">Budi Santoso</h4>
+                                    <p class="text-xs text-gray-500">Slawi, Tegal</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="min-w-[300px] md:min-w-[350px] bg-white p-6 rounded-2xl border border-gray-100 snap-center shadow-sm">
+                            <div class="flex items-center gap-1 text-brand-yellow mb-4 text-sm">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+                            </div>
+                            <p class="text-gray-600 text-sm italic mb-6">"Suka sama sistem pilih desanya. Harganya transparan ga ada biaya tersembunyi. Sangat ngebantu buat anak kosan kalau lagi mager."</p>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">D</div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-brand-black">Dina M.</h4>
+                                    <p class="text-xs text-gray-500">Adiwerna, Tegal</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section class="py-20 bg-white">
+                <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl font-bold text-brand-black mb-4">Pertanyaan Seputar Jastip</h2>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="border border-gray-200 rounded-xl p-5">
+                            <h4 class="font-bold text-gray-800 mb-2 flex items-center"><i class="fa-solid fa-circle-question text-brand-red mr-2"></i> Bagaimana perhitungan ongkirnya?</h4>
+                            <p class="text-sm text-gray-600">Tarif dihitung otomatis berdasarkan jarak Desa ke Desa. Tarif dasar adalah Rp 10.000 untuk 3 KM pertama. Jika lebih dari itu, akan dikenakan tambahan Rp 2.000 per kilometernya.</p>
+                        </div>
+                        <div class="border border-gray-200 rounded-xl p-5">
+                            <h4 class="font-bold text-gray-800 mb-2 flex items-center"><i class="fa-solid fa-circle-question text-brand-red mr-2"></i> Area mana saja yang dicover?</h4>
+                            <p class="text-sm text-gray-600">Saat ini Tulung Mas Januar mengcover eksklusif seluruh wilayah Kabupaten Brebes, Kabupaten Tegal, dan Kota Tegal. Di luar area tersebut belum bisa kami layani.</p>
+                        </div>
+                        <div class="border border-gray-200 rounded-xl p-5">
+                            <h4 class="font-bold text-gray-800 mb-2 flex items-center"><i class="fa-solid fa-circle-question text-brand-red mr-2"></i> Apakah bisa titip belanja di pasar?</h4>
+                            <p class="text-sm text-gray-600">Tentu saja! Anda bisa titip beli makanan resto, obat apotek, belanjaan pasar, hingga barang di minimarket. Tuliskan saja secara detail di kolom catatan barang.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ==================== FORM ORDER & RUTE VIEW ==================== -->
+        <div id="view-order" class="view-section">
+            <div class="bg-brand-black text-white pt-10 pb-24 px-4 text-center">
+                <h2 class="text-3xl font-bold mb-2">Mau Titip Apa Hari Ini?</h2>
+                <p class="text-gray-400 text-sm">Pilih desa asal & tujuan. 100% area Brebes & Tegal tercover.</p>
+            </div>
+            
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 -mt-16 relative z-10 mb-20">
+                <form id="orderForm" class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 md:p-8" onsubmit="submitOrder(event)">
+                    
+                    <!-- 1. Pilihan Rute Desa -->
+                    <div class="mb-10 bg-gray-50 rounded-2xl p-5 border border-gray-200 relative">
+                        <h3 class="flex items-center text-lg font-bold text-gray-800 mb-5 pb-2 border-b border-gray-200">
+                            <span class="w-7 h-7 rounded-full bg-brand-black text-white flex items-center justify-center text-sm mr-3">1</span>
+                            Tentukan Rute Desa
+                        </h3>
+                        
+                        <div class="relative pl-12">
+                            <!-- Visual Line -->
+                            <div class="route-line"></div>
+                            
+                            <!-- Asal (Toko) -->
+                            <div class="mb-6 relative">
+                                <div class="absolute -left-12 top-2 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center z-10 shadow-sm border-2 border-white">
+                                    <i class="fa-solid fa-store text-xs"></i>
+                                </div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Lokasi Pembelian / Toko (Asal)</label>
+                                <select id="areaAsal" required class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-red/50 focus:border-brand-red font-medium text-gray-800" onchange="calculateTarif()">
+                                    <!-- Options injected via JS -->
+                                </select>
+                                <input type="text" id="detailToko" required class="w-full mt-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-red" placeholder="Contoh: Mixue depan stasiun, Pasar Pagi, dll">
+                            </div>
+
+                            <!-- Tujuan (Rumah) -->
+                            <div class="relative">
+                                <div class="absolute -left-12 top-2 w-8 h-8 bg-brand-red text-white rounded-full flex items-center justify-center z-10 shadow-sm border-2 border-white">
+                                    <i class="fa-solid fa-house text-xs"></i>
+                                </div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Lokasi Pengantaran (Tujuan)</label>
+                                <select id="areaTujuan" required class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-red/50 focus:border-brand-red font-medium text-gray-800" onchange="calculateTarif()">
+                                    <!-- Options injected via JS -->
+                                </select>
+                                <textarea id="detailRumah" required rows="2" class="w-full mt-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-red" placeholder="Detail Alamat: Nama Gang, RT/RW, Warna Rumah, Patokan..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Hasil Tarif -->
+                        <div class="mt-6 bg-white border border-brand-red/20 rounded-xl p-4 shadow-inner flex justify-between items-center">
+                            <div>
+                                <p class="text-xs text-gray-500 font-semibold mb-1">Estimasi Ongkir Jastip</p>
+                                <p class="text-[10px] text-gray-400" id="jarakText">Pilih desa asal & tujuan</p>
+                            </div>
+                            <div class="text-right">
+                                <h4 class="text-2xl font-extrabold text-brand-red" id="totalTarif">Rp 0</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Detail Barang & Pemesan -->
+                    <div class="mb-8">
+                        <h3 class="flex items-center text-lg font-bold text-gray-800 mb-5 pb-2 border-b">
+                            <span class="w-7 h-7 rounded-full bg-brand-black text-white flex items-center justify-center text-sm mr-3">2</span>
+                            Detail Titipan & Kontak
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Barang yang dititip *</label>
+                                <input type="text" id="namaBarang" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-red/50 focus:border-brand-red" placeholder="Cth: Nasi Goreng Spesial (2 porsi), Obat Panadol">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Catatan Pesanan (Opsional)</label>
+                                <input type="text" id="catatanBarang" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-red/50 focus:border-brand-red" placeholder="Cth: Nasi goreng pedas semua, beli struknya dibawa">
+                            </div>
+                            
+                            <!-- Kontak -->
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Anda *</label>
+                                <input type="text" id="namaPemesan" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-red/50 focus:border-brand-red" placeholder="Nama lengkap / panggilan">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">No. WhatsApp *</label>
+                                <input type="tel" id="waPemesan" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-red/50 focus:border-brand-red" placeholder="Cth: 08123456789">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" id="btnSubmit" disabled class="w-full bg-gray-400 text-white font-bold text-lg py-4 rounded-xl shadow-lg transition transform flex justify-center items-center gap-2 cursor-not-allowed">
+                        Pilih Desa Tujuan Dulu
+                    </button>
+                    <p class="text-center text-[10px] text-gray-400 mt-3">*Sistem akan langsung membuka WhatsApp Anda dengan format order yang otomatis terisi.</p>
+                </form>
+            </div>
+        </div>
+
+        <!-- ==================== TRACKING VIEW ==================== -->
+        <div id="view-track" class="view-section">
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-bold text-brand-black mb-2">Lacak Pesanan</h2>
+                    <p class="text-gray-500 text-sm">Masukkan nomor HP yang Anda gunakan saat memesan.</p>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-2 flex mb-8">
+                    <input type="tel" id="trackPhone" placeholder="Contoh: 08123456789" class="w-full px-4 py-3 bg-transparent focus:outline-none">
+                    <button onclick="trackOrder()" class="bg-brand-black hover:bg-gray-800 text-white px-6 py-2 rounded-xl font-medium transition">
+                        Cari
+                    </button>
+                </div>
+
+                <div id="trackResult" class="hidden">
+                    <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
+                        <div class="flex justify-between items-start mb-6 pb-4 border-b border-gray-100">
+                            <div>
+                                <p class="text-xs text-gray-500 font-semibold mb-1">Order ID</p>
+                                <p class="font-bold font-mono text-gray-800" id="t-orderId">#</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold" id="t-statusBadge">Status</span>
+                            </div>
+                        </div>
+                        <div class="mb-6 bg-gray-50 p-4 rounded-xl text-sm border border-gray-100">
+                            <p class="mb-1"><span class="text-gray-500">Barang:</span> <span class="font-semibold" id="t-barang"></span></p>
+                            <p class="mb-1"><span class="text-gray-500">Dari Toko:</span> <span class="font-semibold text-blue-600" id="t-asal"></span></p>
+                            <p><span class="text-gray-500">Ke Rumah:</span> <span class="font-semibold text-brand-red" id="t-tujuan"></span></p>
+                            <div class="mt-2 pt-2 border-t border-gray-200 flex justify-between">
+                                <span class="text-gray-500 text-xs">Jarak & Ongkir:</span>
+                                <span class="font-bold text-gray-800" id="t-ongkir"></span>
+                            </div>
+                        </div>
+                        <div class="relative pl-6 border-l-2 border-gray-200 space-y-8" id="t-timeline"></div>
+                    </div>
+                </div>
+                
+                <div id="trackEmpty" class="text-center py-10 hidden">
+                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 text-3xl">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+                    <p class="text-gray-500">Pesanan tidak ditemukan.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ADMIN DASHBOARD ==================== -->
+        <div id="view-admin" class="view-section">
+            <div class="bg-brand-black pb-24 pt-10 px-4">
+                <div class="max-w-7xl mx-auto flex justify-between items-center text-white">
+                    <h2 class="text-2xl font-bold">Admin Dashboard</h2>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 -mt-16 relative z-10 mb-20">
+                <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+                    <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <h3 class="font-bold text-gray-800">Daftar Pesanan</h3>
+                        <button onclick="loadAdminData()" class="text-xs text-brand-red hover:underline"><i class="fa-solid fa-rotate-right mr-1"></i> Refresh</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-gray-600">
+                            <thead class="text-xs uppercase bg-gray-50 text-gray-500">
+                                <tr>
+                                    <th class="px-6 py-4 font-semibold whitespace-nowrap">ID & Info</th>
+                                    <th class="px-6 py-4 font-semibold min-w-[200px]">Rute (Desa ke Desa)</th>
+                                    <th class="px-6 py-4 font-semibold min-w-[200px]">Barang & Tarif</th>
+                                    <th class="px-6 py-4 font-semibold">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminTableBody" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                    <div id="adm-empty" class="p-10 text-center text-gray-500 hidden">Belum ada order.</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer Profesional -->
+    <footer class="bg-brand-black text-gray-400 py-12 mt-auto border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center mb-4 text-white">
+                        <div class="w-8 h-8 bg-brand-red rounded-lg flex items-center justify-center mr-2">
+                            <i class="fa-solid fa-motorcycle text-white text-sm"></i>
+                        </div>
+                        <span class="font-bold text-lg">Tulung Mas Januar</span>
+                    </div>
+                    <p class="text-sm leading-relaxed max-w-sm mb-6">Layanan jasa titip lokalan terpercaya. Menghemat waktu Anda untuk belanja berbagai keperluan tanpa harus keluar rumah, melayani seluruh desa di Kab. Brebes dan Kab. Tegal.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4">Layanan Cepat</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><button onclick="switchView('order')" class="hover:text-brand-yellow transition">Titip Makanan</button></li>
+                        <li><button onclick="switchView('order')" class="hover:text-brand-yellow transition">Titip Obat/Apotek</button></li>
+                        <li><button onclick="switchView('order')" class="hover:text-brand-yellow transition">Titip Belanja Pasar</button></li>
+                        <li><button onclick="switchView('track')" class="hover:text-brand-yellow transition">Lacak Pesanan</button></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4">Kontak Kami</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-map-pin mt-1 text-brand-red"></i> <span>Tegal & Brebes, Jawa Tengah</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-brands fa-whatsapp mt-1 text-brand-red"></i> <span>0889-9588-203</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-10 pt-6 text-center text-xs">
+                <p>&copy; 2026 Tulung Mas Januar Jastip. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating WhatsApp -->
+    <a href="https://wa.me/628899588203?text=Halo%20Tulung%20Mas%20Januar,%20saya%20mau%20tanya-tanya%20dulu" target="_blank" class="fixed bottom-6 right-6 w-14 h-14 bg-green-500 text-white rounded-full flex items-center justify-center text-3xl shadow-lg shadow-green-500/40 hover:scale-110 transition z-40">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+
+    <!-- Scripts -->
+    <script>
+        // Konfigurasi Nomor WA Admin
+        const ADMIN_WA = "628899588203"; 
+        
+        // --- DATABASE SUPER LENGKAP: BREBES & TEGAL ---
+        const KECAMATAN_COORDS = {
+            "Banjarharjo (Brebes)": {x: -25, y: -15}, "Bantarkawung (Brebes)": {x: -15, y: -30}, 
+            "Brebes Kota (Brebes)": {x: -5, y: 10}, "Bulakamba (Brebes)": {x: -12, y: 8}, 
+            "Bumiayu (Brebes)": {x: -10, y: -35}, "Jatibarang (Brebes)": {x: 0, y: 0}, 
+            "Kersana (Brebes)": {x: -20, y: 0}, "Ketanggungan (Brebes)": {x: -15, y: -5}, 
+            "Larangan (Brebes)": {x: -8, y: -5}, "Losari (Brebes)": {x: -30, y: 10}, 
+            "Paguyangan (Brebes)": {x: -8, y: -40}, "Salem (Brebes)": {x: -25, y: -30}, 
+            "Sirampog (Brebes)": {x: -5, y: -30}, "Songgom (Brebes)": {x: 2, y: -8}, 
+            "Tanjung (Brebes)": {x: -20, y: 10}, "Tonjong (Brebes)": {x: -8, y: -25}, 
+            "Wanasari (Brebes)": {x: -8, y: 6},
+            "Adiwerna (Tegal)": {x: 10, y: 5}, "Balapulang (Tegal)": {x: 8, y: -10}, 
+            "Bojong (Tegal)": {x: 12, y: -15}, "Bumijawa (Tegal)": {x: 10, y: -25}, 
+            "Dukuhturi (Tegal)": {x: 12, y: 8}, "Dukuhwaru (Tegal)": {x: 8, y: -2}, 
+            "Jatinegara (Tegal)": {x: 15, y: -12}, "Kedungbanteng (Tegal)": {x: 15, y: -8}, 
+            "Kramat (Tegal)": {x: 18, y: 12}, "Lebaksiu (Tegal)": {x: 11, y: -8}, 
+            "Margasari (Tegal)": {x: 5, y: -15}, "Pagerbarang (Tegal)": {x: 5, y: -5}, 
+            "Pangkah (Tegal)": {x: 14, y: -2}, "Slawi (Tegal)": {x: 11, y: 0}, 
+            "Suradadi (Tegal)": {x: 22, y: 10}, "Talang (Tegal)": {x: 13, y: 6}, 
+            "Tarub (Tegal)": {x: 15, y: 4}, "Warureja (Tegal)": {x: 25, y: 8},
+            "Margadana (Kota Tegal)": {x: 8, y: 11}, "Tegal Barat (Kota Tegal)": {x: 10, y: 13}, 
+            "Tegal Selatan (Kota Tegal)": {x: 11, y: 9}, "Tegal Timur (Kota Tegal)": {x: 12, y: 12}
+        };
+
+        const RAW_DESA_LIST = {
+            "Banjarharjo (Brebes)": ["Banjarharjo", "Cigadung", "Cikakak", "Parakan", "Penanggapan", "Bandungsari"],
+            "Bantarkawung (Brebes)": ["Bantarkawung", "Banjarsari", "Cinanas", "Pangebatan", "Terlaya", "Legok"],
+            "Brebes Kota (Brebes)": ["Brebes", "Gandasuli", "Limbangan Wetan", "Limbangan Kulon", "Pasarbatang", "Randugunting", "Pulosari"],
+            "Bulakamba (Brebes)": ["Bulakamba", "Bulusari", "Cimohong", "Grinting", "Kluwut", "Pakijangan", "Petunjungan"],
+            "Bumiayu (Brebes)": ["Bumiayu", "Kalierang", "Jatisawit", "Laren", "Dukuhturi", "Pruwatan", "Penggarutan"],
+            "Jatibarang (Brebes)": ["Jatibarang Lor", "Jatibarang Kidul", "Bojong", "Kemiriamba", "Klikiran", "Janegara", "Pamengger"],
+            "Kersana (Brebes)": ["Kersana", "Cigedog", "Cikandang", "Jagapura", "Kubangpari"],
+            "Ketanggungan (Brebes)": ["Ketanggungan", "Dukuhturi", "Karangmalang", "Kubangsari", "Padakaton"],
+            "Larangan (Brebes)": ["Larangan", "Sitanggal", "Kedungbokor", "Wlahar", "Pamulihan"],
+            "Losari (Brebes)": ["Losari Lor", "Losari Kidul", "Bojongsari", "Karangdempel", "Prapag Lor"],
+            "Paguyangan (Brebes)": ["Paguyangan", "Kretek", "Taraban", "Winduaji", "Pakujati"],
+            "Salem (Brebes)": ["Salem", "Banjaran", "Bentarsari", "Ciputih", "Ganggawang"],
+            "Sirampog (Brebes)": ["Sirampog", "Benda", "Buniwah", "Dawuhan", "Sridadi"],
+            "Songgom (Brebes)": ["Songgom", "Songgom Lor", "Jatirokeh", "Karangsembung", "Cenang"],
+            "Tanjung (Brebes)": ["Tanjung", "Krakahan", "Lemahabang", "Mundu", "Pejagan"],
+            "Tonjong (Brebes)": ["Tonjong", "Linggapura", "Negarayu", "Pepedan", "Purbayasa"],
+            "Wanasari (Brebes)": ["Wanasari", "Pesantunan", "Klampok", "Siasem", "Sisalam"],
+            
+            "Adiwerna (Tegal)": ["Adiwerna", "Tembok Banjaran", "Ujungrusi", "Pesarean", "Kalimati", "Pagiyanten"],
+            "Balapulang (Tegal)": ["Balapulang Wetan", "Balapulang Kulon", "Banjaranyar", "Batuagung", "Cibunar"],
+            "Bojong (Tegal)": ["Bojong", "Buniwah", "Cikura", "Danawarih", "Kajenengan"],
+            "Bumijawa (Tegal)": ["Bumijawa", "Cempaka", "Cintamanik", "Guci", "Sumbaga"],
+            "Dukuhturi (Tegal)": ["Dukuhturi", "Debong Wetan", "Kademangaran", "Karanganyar", "Ketanggungan"],
+            "Dukuhwaru (Tegal)": ["Dukuhwaru", "Blubuk", "Gumayun", "Kabunan", "Slarang Lor"],
+            "Jatinegara (Tegal)": ["Jatinegara", "Argatawang", "Cerih", "Dukuhbangsa", "Lebakwangi"],
+            "Kedungbanteng (Tegal)": ["Kedungbanteng", "Karanganyar", "Margamulya", "Penujah", "Tonggara"],
+            "Kramat (Tegal)": ["Kramat", "Bongkok", "Kemantran", "Munjungagung", "Padaharja"],
+            "Lebaksiu (Tegal)": ["Lebaksiu Lor", "Lebaksiu Kidul", "Kajen", "Pendawa", "Yamansari"],
+            "Margasari (Tegal)": ["Margasari", "Danasari", "Jembayat", "Karangdawa", "Margaayu"],
+            "Pagerbarang (Tegal)": ["Pagerbarang", "Jatiwangi", "Karanganyar", "Kedungsugih", "Randusari"],
+            "Pangkah (Tegal)": ["Pangkah", "Balamoa", "Bogares Lor", "Bogares Kidul", "Penusupan"],
+            "Slawi (Tegal)": ["Slawi Wetan", "Slawi Kulon", "Pakembaran", "Kudaile", "Kagok", "Dukuhwringin"],
+            "Suradadi (Tegal)": ["Suradadi", "Bojongsana", "Gembongdadi", "Jatimulya", "Kertasari"],
+            "Talang (Tegal)": ["Talang", "Bengle", "Dawuhan", "Kajen", "Pacul"],
+            "Tarub (Tegal)": ["Tarub", "Brekat", "Bulakwaru", "Jatilawang", "Mindaka"],
+            "Warureja (Tegal)": ["Warureja", "Banjarturi", "Demangharjo", "Kedungjati", "Sukareja"],
+
+            "Margadana (Kota Tegal)": ["Margadana", "Cabawan", "Kaligangsa", "Krandon", "Pesurungan Lor"],
+            "Tegal Barat (Kota Tegal)": ["Tegal Sari", "Kraton", "Kemandungan", "Pekauman", "Muara Anyar"],
+            "Tegal Selatan (Kota Tegal)": ["Bandung", "Debong Kidul", "Kalinyamat Wetan", "Keturen", "Randugunting"],
+            "Tegal Timur (Kota Tegal)": ["Kejambon", "Mangkukusuman", "Mintaragen", "Panggung", "Slerok"]
+        };
+
+        const DESA_DATA = {};
+        for (const kec in RAW_DESA_LIST) {
+            DESA_DATA[kec] = {};
+            const baseCoord = KECAMATAN_COORDS[kec];
+            RAW_DESA_LIST[kec].forEach((desa, index) => {
+                const offsetX = (index % 3) * 0.8;
+                const offsetY = Math.floor(index / 3) * 0.8;
+                DESA_DATA[kec][desa] = { x: baseCoord.x + offsetX, y: baseCoord.y + offsetY };
+            });
+        }
+
+        const BASE_FEE = 10000;
+        const BASE_KM = 3;
+        const EXTRA_FEE_PER_KM = 2000;
+        
+        let currentOngkir = 0;
+        let currentJarak = 0;
+        let selectedData = {};
+
+        const STATUSES = {
+            'waiting': { label: 'Menunggu', color: 'bg-yellow-100 text-yellow-700', icon: 'fa-clock' },
+            'buying': { label: 'Dibeli', color: 'bg-blue-100 text-blue-700', icon: 'fa-store' },
+            'delivering': { label: 'Diantar', color: 'bg-purple-100 text-purple-700', icon: 'fa-motorcycle' },
+            'done': { label: 'Selesai', color: 'bg-green-100 text-green-700', icon: 'fa-check-double' },
+            'cancelled': { label: 'Batal', color: 'bg-red-100 text-red-700', icon: 'fa-xmark' }
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            populateAreaDropdowns();
+            if(window.location.hash) {
+                const view = window.location.hash.substring(1);
+                if(['home', 'order', 'track', 'admin'].includes(view)) switchView(view);
+            }
+        });
+
+        function populateAreaDropdowns() {
+            const selectAsal = document.getElementById('areaAsal');
+            const selectTujuan = document.getElementById('areaTujuan');
+            let optionsHTML = '<option value="" disabled selected>-- Cari Desa / Kecamatan --</option>';
+            
+            for (const [kecamatan, desas] of Object.entries(DESA_DATA)) {
+                optionsHTML += `<optgroup label="KEC. ${kecamatan.toUpperCase()}">`;
+                for (const [desa, coords] of Object.entries(desas)) {
+                    const val = `${kecamatan}|${desa}`;
+                    optionsHTML += `<option value="${val}">Desa ${desa}</option>`;
+                }
+                optionsHTML += `</optgroup>`;
+            }
+            selectAsal.innerHTML = optionsHTML;
+            selectTujuan.innerHTML = optionsHTML;
+        }
+
+        function calculateTarif() {
+            const asalRaw = document.getElementById('areaAsal').value;
+            const tujuanRaw = document.getElementById('areaTujuan').value;
+            const btnSubmit = document.getElementById('btnSubmit');
+            
+            if(!asalRaw || !tujuanRaw) {
+                btnSubmit.disabled = true;
+                btnSubmit.className = "w-full bg-gray-400 text-white font-bold text-lg py-4 rounded-xl shadow-lg transition flex justify-center items-center gap-2 cursor-not-allowed";
+                btnSubmit.innerHTML = "Pilih Desa Tujuan Dulu";
+                return;
+            }
+
+            const [kecAsal, desaAsal] = asalRaw.split('|');
+            const [kecTujuan, desaTujuan] = tujuanRaw.split('|');
+            selectedData = { kecAsal, desaAsal, kecTujuan, desaTujuan };
+
+            const coordAsal = DESA_DATA[kecAsal][desaAsal];
+            const coordTujuan = DESA_DATA[kecTujuan][desaTujuan];
+
+            const diffX = coordTujuan.x - coordAsal.x;
+            const diffY = coordTujuan.y - coordAsal.y;
+            let distance = Math.sqrt(diffX*diffX + diffY*diffY);
+            
+            distance = Math.ceil(distance);
+            if(distance < 1) distance = 1; 
+
+            currentJarak = distance;
+            currentOngkir = BASE_FEE;
+            if (distance > BASE_KM) {
+                currentOngkir += (distance - BASE_KM) * EXTRA_FEE_PER_KM;
+            }
+
+            document.getElementById('jarakText').innerText = `Estimasi jarak: ~${distance} KM`;
+            document.getElementById('totalTarif').innerText = formatRupiah(currentOngkir);
+            
+            btnSubmit.disabled = false;
+            btnSubmit.className = "w-full bg-brand-red hover:bg-brand-redDark text-white font-bold text-lg py-4 rounded-xl shadow-lg shadow-brand-red/30 transition transform hover:-translate-y-1 flex justify-center items-center gap-2";
+            btnSubmit.innerHTML = `<i class="fa-brands fa-whatsapp text-2xl"></i> Pesan via WhatsApp`;
+        }
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(`view-${viewId}`).classList.add('active');
+            window.scrollTo(0, 0);
+            window.location.hash = viewId;
+            if(viewId === 'admin') loadAdminData();
+            if (document.getElementById('mobileMenu').classList.contains('block')) toggleMobileMenu();
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+            menu.classList.toggle('block');
+        }
+
+        function formatRupiah(num) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+        }
+
+        function generateId() {
+            return 'TMJ-' + Math.floor(1000 + Math.random() * 9000);
+        }
+
+        // --- SOLUSI FIX REDIRECT WHATSAPP ---
+        function submitOrder(e) {
+            e.preventDefault();
+            if(currentOngkir === 0) return alert("Pilih rute desa asal dan tujuan terlebih dahulu!");
+
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-2xl"></i> Mengalihkan ke WhatsApp...`;
+            
+            const order = {
+                id: generateId(),
+                date: new Date().toISOString(),
+                nama: document.getElementById('namaPemesan').value,
+                wa: document.getElementById('waPemesan').value,
+                desaAsal: selectedData.desaAsal,
+                kecAsal: selectedData.kecAsal,
+                detailAsal: document.getElementById('detailToko').value,
+                desaTujuan: selectedData.desaTujuan,
+                kecTujuan: selectedData.kecTujuan,
+                detailTujuan: document.getElementById('detailRumah').value,
+                barang: document.getElementById('namaBarang').value,
+                catatan: document.getElementById('catatanBarang').value,
+                jarak: currentJarak,
+                tarif: currentOngkir,
+                status: 'waiting'
+            };
+
+            // Simpan ke local storage database
+            let orders = JSON.parse(localStorage.getItem('tmj_orders')) || [];
+            orders.unshift(order);
+            localStorage.setItem('tmj_orders', JSON.stringify(orders));
+
+            // Format Pesan Teks
+            let waMsg = `*ORDER BARU TULUNG MAS JANUAR*\n\n`;
+            waMsg += `*ID Order:* ${order.id}\n`;
+            waMsg += `*Pemesan:* ${order.nama} (${order.wa})\n\n`;
+            
+            waMsg += `*📍 RUTE JASTIP:*\n`;
+            waMsg += `*DARI (TOKO):*\n`;
+            waMsg += `- Desa: ${order.desaAsal}\n`;
+            waMsg += `- Kec: ${order.kecAsal}\n`;
+            waMsg += `- Detail: _${order.detailAsal}_\n\n`;
+            
+            waMsg += `*KE (RUMAH):*\n`;
+            waMsg += `- Desa: ${order.desaTujuan}\n`;
+            waMsg += `- Kec: ${order.kecTujuan}\n`;
+            waMsg += `- Detail: _${order.detailTujuan}_\n\n`;
+
+            waMsg += `*🛍️ DETAIL PESANAN:*\n`;
+            waMsg += `*Barang:* ${order.barang}\n`;
+            if(order.catatan) waMsg += `*Catatan:* ${order.catatan}\n`;
+            
+            waMsg += `\n*💰 BIAYA JASTIP:*\n`;
+            waMsg += `Jarak: ~${order.jarak} KM\n`;
+            waMsg += `*Tarif Ongkir: ${formatRupiah(order.tarif)}*\n\n`;
+            waMsg += `_Mohon segera direspon ya Min!_`;
+
+            const urlWa = `https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(waMsg)}`;
+
+            // Reset Form di Belakang Layar
+            document.getElementById('orderForm').reset();
+            document.getElementById('totalTarif').innerText = "Rp 0";
+            document.getElementById('jarakText').innerText = "Pilih desa asal & tujuan";
+            
+            // Masukkan data no HP ke form tracking agar pas dia balik, halamannya sudah siap
+            document.getElementById('trackPhone').value = order.wa;
+
+            // FIX: Bypass Pop-up Blocker Menggunakan Tag Anchor & Location Href
+            setTimeout(() => {
+                // 1. Coba klik lewat anchor (tag <a> tersembunyi)
+                const a = document.createElement('a');
+                a.href = urlWa;
+                a.target = '_blank'; // Coba buka di tab baru
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                // 2. Ubah UI ke halaman tracking setelah 1.5 detik
+                setTimeout(() => {
+                    switchView('track');
+                    trackOrder(); // Langsung load data tracking
+                    
+                    // 3. Fallback: Jika pop-up diblokir total, paksa buka link di tab ini langsung
+                    if (!document.hidden) {
+                        window.location.href = urlWa; 
+                    }
+                }, 1500);
+            }, 500);
+        }
+
+        // --- Tracking ---
+        function trackOrder() {
+            const phone = document.getElementById('trackPhone').value.trim();
+            const orders = JSON.parse(localStorage.getItem('tmj_orders')) || [];
+            const order = orders.find(o => o.wa === phone);
+
+            if(order) {
+                document.getElementById('trackEmpty').classList.add('hidden');
+                document.getElementById('trackResult').classList.remove('hidden');
+                
+                document.getElementById('t-orderId').innerText = `#${order.id}`;
+                document.getElementById('t-barang').innerText = order.barang;
+                document.getElementById('t-asal').innerText = `${order.desaAsal}, ${order.kecAsal.split(' ')[0]}`;
+                document.getElementById('t-tujuan').innerText = `${order.desaTujuan}, ${order.kecTujuan.split(' ')[0]}`;
+                document.getElementById('t-ongkir').innerText = `${order.jarak} KM (${formatRupiah(order.tarif)})`;
+                
+                const stat = STATUSES[order.status];
+                document.getElementById('t-statusBadge').className = `inline-block px-3 py-1 rounded-full text-xs font-bold ${stat.color}`;
+                document.getElementById('t-statusBadge').innerText = stat.label;
+
+                const timeline = document.getElementById('t-timeline');
+                timeline.innerHTML = '';
+                const steps = ['waiting', 'buying', 'delivering', 'done'];
+                
+                if (order.status === 'cancelled') {
+                    timeline.innerHTML = buildStep('waiting', true) + buildStep('cancelled', true, true);
+                    return;
+                }
+
+                let reached = false;
+                steps.forEach((step, i) => {
+                    let active = false;
+                    if(step === order.status) { active = true; reached = true; } 
+                    else if (!reached) { active = true; }
+                    timeline.innerHTML += buildStep(step, active, i === steps.length-1);
+                });
+            } else {
+                document.getElementById('trackResult').classList.add('hidden');
+                document.getElementById('trackEmpty').classList.remove('hidden');
+            }
+        }
+
+        function buildStep(key, active, isLast=false) {
+            const stat = STATUSES[key];
+            const bg = active ? 'bg-brand-red text-white' : 'bg-gray-200 text-gray-400';
+            const txt = active ? 'text-gray-800' : 'text-gray-400';
+            const line = isLast ? '' : `<div class="absolute left-4 top-8 bottom-[-2rem] w-[2px] ${active && key!=='waiting' ? 'bg-brand-red' : 'bg-gray-200'} -z-10"></div>`;
+            return `
+                <div class="relative flex items-start gap-4">
+                    ${line}
+                    <div class="absolute -left-[35px] w-6 h-6 rounded-full ${bg} flex items-center justify-center border-4 border-white text-[10px] z-10">
+                        <i class="fa-solid ${stat.icon}"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-sm ${txt}">${stat.label}</h5>
+                    </div>
+                </div>`;
+        }
+
+        // --- Admin Dashboard ---
+        function loadAdminData() {
+            const orders = JSON.parse(localStorage.getItem('tmj_orders')) || [];
+            const tbody = document.getElementById('adminTableBody');
+            
+            if (orders.length === 0) {
+                document.getElementById('adm-empty').classList.remove('hidden');
+                tbody.innerHTML = ''; return;
+            }
+            document.getElementById('adm-empty').classList.add('hidden');
+            tbody.innerHTML = '';
+
+            orders.forEach(o => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 border-b border-gray-100">
+                        <td class="px-6 py-4 align-top">
+                            <div class="font-mono font-bold text-xs mb-1">${o.id}</div>
+                            <div class="font-medium text-sm">${o.nama}</div>
+                            <div class="text-xs text-blue-500">${o.wa}</div>
+                        </td>
+                        <td class="px-6 py-4 text-xs align-top">
+                            <div class="mb-2"><span class="inline-block w-8 font-semibold text-gray-400">Dari:</span> <span class="font-medium">${o.desaAsal} (${o.kecAsal.split(' ')[0]})</span> <br><span class="text-gray-500 italic">${o.detailAsal}</span></div>
+                            <div><span class="inline-block w-8 font-semibold text-gray-400">Ke:</span> <span class="font-medium text-brand-red">${o.desaTujuan} (${o.kecTujuan.split(' ')[0]})</span> <br><span class="text-gray-500 italic">${o.detailTujuan}</span></div>
+                        </td>
+                        <td class="px-6 py-4 text-xs align-top">
+                            <div class="font-medium text-sm mb-1">${o.barang}</div>
+                            <div class="text-gray-500 mb-2 italic">Ket: ${o.catatan || '-'}</div>
+                            <div class="font-bold bg-gray-100 inline-block px-2 py-1 rounded text-gray-800">${o.jarak} KM | Tarif: ${formatRupiah(o.tarif)}</div>
+                        </td>
+                        <td class="px-6 py-4 align-top">
+                            <select onchange="updateStatus('${o.id}', this.value)" class="text-xs bg-white border rounded px-2 py-1.5 focus:border-brand-red focus:outline-none">
+                                <option value="waiting" ${o.status==='waiting'?'selected':''}>Menunggu</option>
+                                <option value="buying" ${o.status==='buying'?'selected':''}>Dibeli</option>
+                                <option value="delivering" ${o.status==='delivering'?'selected':''}>Diantar</option>
+                                <option value="done" ${o.status==='done'?'selected':''}>Selesai</option>
+                                <option value="cancelled" ${o.status==='cancelled'?'selected':''}>Batal</option>
+                            </select>
+                        </td>
+                    </tr>`;
+            });
+        }
+        
+        function updateStatus(id, newStat) {
+            let orders = JSON.parse(localStorage.getItem('tmj_orders')) || [];
+            const idx = orders.findIndex(o => o.id === id);
+            if (idx > -1) {
+                orders[idx].status = newStat;
+                localStorage.setItem('tmj_orders', JSON.stringify(orders));
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+```
